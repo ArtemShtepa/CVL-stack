@@ -11,7 +11,7 @@ roles:
   - name: lighthouse-role
     src: git@github.com:ArtemShtepa/lighthouse-role.git
     scm: git
-    version: "1.0.4"
+    version: "1.0.5"
 
 collections:
   - name: Artem Shtepa ansible collection
