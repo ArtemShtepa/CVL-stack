@@ -5,7 +5,7 @@
   tasks:
     - name: Project branch
       ansible.builtin.debug:
-        msg: "It is MAIN branch"
+        msg: "It is SECOND branch"
 
 - name: Prepare containers
   hosts: all

@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Get CVL roles') {
+        stage('Second branch') {
             steps {
-                git branch: 'main', credentialsId: 'sa-github', url: 'git@github.com:ArtemShtepa/CVL-stack.git'
+                echo 'SECOND'
             }
         }
         stage('Molecute Test') {
