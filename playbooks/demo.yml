@@ -52,7 +52,7 @@
           access_management: 0 }
     file_log_structure: "file String, host String, message String, timestamp DateTime64"
   roles:
-    - clickhouse
+    - clickhouse-role
   post_tasks:
     - name: Create tables
       ansible.builtin.command: "clickhouse-client --host 127.0.0.1 -q 'CREATE TABLE logs.file_log ({{ file_log_structure }}) ENGINE = Log();'"
