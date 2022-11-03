@@ -74,6 +74,7 @@
   hosts: lighthouse
   vars:
     lighthouse_path: "/usr/share/nginx/lighthouse"
+    lighthouse_port: "8008"
     clickhouse_host: "{{ groups['clickhouse'][0] }}"
     clickhouse_user: "logger"
     clickhouse_password: "logger"
