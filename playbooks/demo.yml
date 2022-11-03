@@ -80,17 +80,4 @@
     clickhouse_password: "logger"
   roles:
     - lighthouse-role
-
-- name: Echo instances hint
-  hosts: localhost
-  tasks:
-    - name: Clickhouse IP
-      ansible.builtin.debug:
-        msg: "Clickhouse IP: {{ groups['clickhouse'][0] }}"
-    - name: Vector IP
-      ansible.builtin.debug:
-        msg: "Vector IP    : {{ groups['vector'][0] }}"
-    - name: Lighthouse IP
-      ansible.builtin.debug:
-        msg: "Lighthouse IP: {{ groups['lighthouse'][0] }}"
 ...
