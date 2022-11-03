@@ -64,7 +64,7 @@
   hosts: vector
   vars:
     vector_test_dir: "/home/{{ ansible_user }}/test"
-    clickhouse_host: "{{ groups['clickhouse'][0] }}"
+    clickhouse_host: "{{ hostvars[groups['clickhouse'][0]]['ansible_host'] }}"
     clickhouse_user: "logger"
     clickhouse_password: "logger"
   roles:
@@ -75,7 +75,7 @@
   vars:
     lighthouse_path: "/usr/share/nginx/lighthouse"
     lighthouse_port: "8008"
-    clickhouse_host: "{{ groups['clickhouse'][0] }}"
+    clickhouse_host: "{{ hostvars[groups['clickhouse'][0]]['ansible_host'] }}"
     clickhouse_user: "logger"
     clickhouse_password: "logger"
   roles:
