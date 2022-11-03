@@ -63,7 +63,7 @@
 - name: Install Vector
   hosts: vector
   vars:
-    vector_test_dir: "/home/{{ ansible_ssh_user }}/test"
+    vector_test_dir: "/home/{{ ansible_user }}/test"
     clickhouse_host: "{{ groups['clickhouse'][0] }}"
     clickhouse_user: "logger"
     clickhouse_password: "logger"
