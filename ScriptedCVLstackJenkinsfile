@@ -1,0 +1,66 @@
+import groovy.json.JsonSlurper
+
+/*
+vm_json = [
+    '{"name":"clickhouse", "coref":5, "cores":2, "memory":"2GB", "disk":"size=10GB,image-folder-id=standard-images,image-family=centos-7"}',
+    '{"name":"lighthouse", "coref":5, "cores":2, "memory":"1GB", "disk":"size=10GB,image-folder-id=standard-images,image-family=centos-7"}',
+    '{"name":"vector", "coref":5, "cores":2, "memory":"1GB", "disk":"size=10GB,image-folder-id=standard-images,image-family=centos-7" }'
+    ]
+//Единая функция для разбора конфигураций машинок
+for(String p: vm_json){
+  def vm = new JsonSlurper().parseText(p)
+  def cmd = "$yc_bin/yc compute instance create $vm.name --core-fraction $vm.coref --cores $vm.cores --memory $vm.memory --create-boot-disk $vm.disk --public-ip --ssh-key '~/.ssh/id_rsa.pub' --format json"
+  if(res.size()>0) res += ","
+  res += '{ "'+vm.name+'": { "hosts": [ "1.1.1.1" ] }}'
+}
+*/
+
+yc_bin = "/home/jenkins/yandex-cloud/bin"
+ssh_keyfile = '"/home/jenkins/.ssh/id_rsa.pub"'
+inv_res = "---\n"
+
+def raise_vm(name, config) {
+    def vm_config = ""
+    try {
+        vm_config = sh (script: "$yc_bin/yc compute instance create $name $config --public-ip --ssh-key $ssh_keyfile --format json", returnStdout: true)
+    } catch (e) {
+        vm_config = sh (script: "$yc_bin/yc compute instance get $name --format json", returnStdout: true)
+    }
+    println(vm_config)
+    def res = new JsonSlurper().parseText(vm_config)
+    inv_res += "${name}:\n"+
+                "  hosts:\n"+
+                "    ${name}-01:\n"+
+                "      ansible_host: "+res.network_interfaces[0].primary_v4_address.one_to_one_nat.address+"\n"+
+                "  vars:\n"+
+                "    ansible_user: yc-user\n"
+}
+
+node("ansible") {
+    stage('Check YC config') {
+        def yc_token = sh (script: "${yc_bin}/yc config get token", returnStdout: true) == 0
+        def yc_cloud = sh (script: "${yc_bin}/yc config get cloud-id", returnStdout: true) == 0
+        def yc_folder = sh (script: "${yc_bin}/yc config get folder-id", returnStdout: true) == 0
+        def yc_zone = sh (script: "${yc_bin}/yc config get compute-default-zone", returnStdout: true) == 0
+    }
+    stage("Create Clickhouse VM") {
+        raise_vm("clickhouse", "--core-fraction 5 --cores 2 --memory 2GB --create-boot-disk size=10GB,image-folder-id=standard-images,image-family=centos-7")
+    }
+    stage("Create Vector VM") {
+        raise_vm("vector", "--core-fraction 5 --cores 2 --memory 1GB --create-boot-disk size=10GB,image-folder-id=standard-images,image-family=centos-7")
+    }
+    stage("Create Lighthouse VM") {
+        raise_vm("lighthouse", "--core-fraction 5 --cores 2 --memory 1GB --create-boot-disk size=10GB,image-folder-id=standard-images,image-family=centos-7")
+    }
+    stage("Get CVL Ansible roles") {
+        git branch: 'main', credentialsId: 'sa-github', url: 'git@github.com:ArtemShtepa/CVL-stack.git'
+        sh 'ansible-galaxy install -r molecule/default/requirements.yml -p playbooks/roles/'
+    }
+    stage("Write inventory") {
+        println(inv_res)
+        writeFile file: 'inventory.yml', text: inv_res
+    }
+    stage("Run Ansible PLaybook") {
+        sh 'ansible-playbook -i inventory.yml playbooks/demo.yml'
+    }
+}
