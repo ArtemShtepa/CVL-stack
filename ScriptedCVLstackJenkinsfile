@@ -60,7 +60,7 @@ node("ansible") {
         println(inv_res)
         writeFile file: 'inventory.yml', text: inv_res
     }
-    stage("Run Ansible PLaybook") {
+    stage("Run Ansible Playbook") {
         sh 'ansible-playbook -i inventory.yml playbooks/demo.yml'
     }
 }
