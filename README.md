@@ -33,3 +33,11 @@
 Для успешного функционирования всего стека ролям сервисов **Vector** и **Lighthouse** нужно передать IP адрес сервиса **Clickhouse** внутри сети контейнеров **Docker**.
 По умолчанию **Molecule** создаёт контейнеры в сети в драйвером **bridge**. Определение IP адреса контейнера **Clickhouse** и передача его другим осуществляется в **play** с именем `Detect Clickhouse IP`.
 Для ручного контроля используемые порты проброшены в основную систему и доступны по локальному IP адресу `127.0.0.1`
+
+## Автоматизация Jenkins
+
+1. Файл `DeclarativeJenkinsfile` для **Declarative pipeline**
+1. Файл `Jenkinsfile` для **Multibranch pipeline** (репозиторий содержит две ветки: `main` и `second` - с разными версиями `Jenkinsfile` и `converge.yml`)
+1. Файл `ScriptedJenkinsfile` для простого **Scripted pipeline** тестировании ролей в **Molecule**
+1. Файл `ScriptedCVLstackJenkinsfile` для **Scripted pipeline** автоматизации создания машинок в **Яндекс.Облаке** и разворачивании на них всего **CVL** стека
+1. Файл `playbooks/demo.yml` - **Ansible playbook** для разворачивания **CVL** стека. Требует **inventory** файл. Используется в скрипте автоматизации `ScriptedCVLstackJenkinsfile`
